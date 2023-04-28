@@ -4,15 +4,6 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
-def add_root_dir(apps, schema_editor):
-    # We can't import the Person model directly as it may be a newer
-    # version than this migration expects. We use the historical version.
-    Directory = apps.get_model("dataStorageBot", "Directories")
-    root = Directory(id=1, title='root')
-    root.parent = root
-    root.save()
-
-
 class Migration(migrations.Migration):
 
     initial = True
@@ -32,7 +23,6 @@ class Migration(migrations.Migration):
                 'db_table': 'directories',
             },
         ),
-        migrations.RunPython(add_root_dir),
         migrations.CreateModel(
             name='Tags',
             fields=[
