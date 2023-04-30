@@ -6,7 +6,7 @@ import telebot
 from telebot.types import ReplyKeyboardRemove
 
 from dataStorage import settings
-from dataStorageBot.utils.constants import ROOT_DIR_NAME, CREATE_SUBDIR_BTN_TEXT
+from dataStorageBot.utils.constants import *
 from dataStorageBot.utils.data_helper import check_root_exists, get_user, \
     create_sub_directory
 from dataStorageBot.utils.message_helper import get_dir_reply_keyboard
@@ -18,6 +18,7 @@ def hello(request):
 
 bot = telebot.TeleBot(settings.TG_TOKEN, threaded=False)
 bot.set_webhook(url=settings.TG_WEBHOOK)
+bot.set_my_commands(MY_COMMANDS)
 
 
 @csrf_exempt
@@ -45,7 +46,12 @@ def greet(message: telebot.types.Message):
     bot.send_message(message.chat.id, "Use /help to see bot usage prompts")
 
 
-@bot.message_handler(commands=['root'])
+@bot.message_handler(commands=[HELP_COMMAND])
+def open_root(message: telebot.types.Message):
+    bot.send_message(message.chat.id, HELP_TEXT)
+
+
+@bot.message_handler(commands=[ROOT_COMMAND])
 def open_root(message: telebot.types.Message):
     user = get_user(message.from_user.id)
     user.current_dir = None
@@ -53,6 +59,21 @@ def open_root(message: telebot.types.Message):
     bot.send_message(message.chat.id, f"Opening directory \"{ROOT_DIR_NAME}\"",
                      reply_markup=get_dir_reply_keyboard())
     bot.send_message(message.chat.id, "dir visualization placeholder")
+
+
+@bot.message_handler(commands=[LAST_ACTIVE_DIR_COMMAND])
+def open_root(message: telebot.types.Message):
+    bot.send_message(message.chat.id, 'coming soon')
+
+
+@bot.message_handler(commands=[SEARCH_COMMAND])
+def open_root(message: telebot.types.Message):
+    bot.send_message(message.chat.id, 'coming soon')
+
+
+@bot.message_handler(commands=[TAGS_COMMAND])
+def open_root(message: telebot.types.Message):
+    bot.send_message(message.chat.id, 'coming soon')
 
 
 @bot.message_handler(regexp=CREATE_SUBDIR_BTN_TEXT)
