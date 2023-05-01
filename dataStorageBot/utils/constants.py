@@ -2,14 +2,24 @@ from telebot.types import BotCommand
 
 ROOT_DIR_NAME = 'root'
 
+# /commands
 HELP_COMMAND = 'help'
 ROOT_COMMAND = 'root'
 LAST_ACTIVE_DIR_COMMAND = 'last_active_dir'
 SEARCH_COMMAND = 'search'
 TAGS_COMMAND = 'tags'
 
+# keyboard buttons
 CREATE_SUBDIR_BTN_TEXT = 'create subdir'
 
+# inline keyboard
+DIRECTORY_VIEW_SCOPE = 'dir'
+FILE_VIEW_SCOPE = 'file'
+
+NAVIGATION_OPTION = 'nav'
+FILE_OPEN_OPTION = 'file'
+
+# hints
 MY_COMMANDS = [
     BotCommand(HELP_COMMAND, 'get bot usage prompts'),
     BotCommand(ROOT_COMMAND, f'open directory \"{ROOT_DIR_NAME}\"'),
