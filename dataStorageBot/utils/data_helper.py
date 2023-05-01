@@ -1,5 +1,7 @@
-from dataStorageBot.models import Users, Directories
-from dataStorageBot.utils.constants import ROOT_DIR_NAME
+from telebot.types import Message
+
+from dataStorageBot.models import Users, Directories, Files
+from dataStorageBot.utils.constants import ROOT_DIR_NAME, FileTypes
 
 
 def get_user(user_id: int) -> Users:
@@ -20,8 +22,8 @@ def check_root_exists(user_id: int) -> bool:
         return False
 
 
-def create_sub_directory(user: Users, name: str) -> None:
-    Directories.objects.create(title=name, user=user, parent=user.get_current_dir())
+def create_sub_directory(user: Users, title: str) -> None:
+    Directories.objects.create(title=title, user=user, parent=user.get_current_dir())
 
 
 def get_full_path(directory: Directories):
@@ -31,3 +33,30 @@ def get_full_path(directory: Directories):
         d = d.parent
         full_path = d.title + '/' + full_path
     return full_path
+
+
+def get_file_id(message: Message) -> str:
+    content_type = message.content_type
+    if content_type == FileTypes.AUDIO.value:
+        return message.audio.file_id
+    elif content_type == FileTypes.DOCUMENT.value:
+        return message.document.file_id
+    elif content_type == FileTypes.PHOTO.value:
+        return message.photo[0].file_id
+    elif content_type == FileTypes.VIDEO.value:
+        return message.video.file_id
+    else:
+        return ''
+
+
+def create_file(message: Message):
+    print('message', message)
+    user = get_user(message.from_user.id)
+    tg_file_id = get_file_id(message)
+    if tg_file_id != '':
+        Files.objects.create(title=message.caption, user=user,
+                             content_type=message.content_type,
+                             tg_file_id=tg_file_id, directory=user.get_current_dir())
+        return True
+    else:
+        return False

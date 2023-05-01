@@ -11,7 +11,7 @@ from dataStorage import settings
 from dataStorageBot.models import Directories
 from dataStorageBot.utils.constants import *
 from dataStorageBot.utils.data_helper import check_root_exists, get_user, \
-    create_sub_directory, get_full_path
+    create_sub_directory, get_full_path, create_file
 from dataStorageBot.utils.message_helper import get_dir_reply_keyboard, \
     get_dir_inline_keyboard
 
@@ -61,7 +61,7 @@ def open_root(message: telebot.types.Message):
 @bot.message_handler(commands=[ROOT_COMMAND])
 def open_root(message: telebot.types.Message):
     user = get_user(message.from_user.id)
-    user.current_dir = None
+    user._current_dir = None
     user.save()
     bot.send_message(message.chat.id, f"Opening directory \"{ROOT_DIR_NAME}\"",
                      reply_markup=get_dir_reply_keyboard())
@@ -92,9 +92,30 @@ def create_subdir(message: telebot.types.Message):
 
 def process_subdir_name(message: telebot.types.Message):
     user = get_user(message.from_user.id)
-    create_sub_directory(user=user, name=message.text)
+    create_sub_directory(user=user, title=message.text)
     bot.send_message(message.chat.id, f"Directory \"{message.text}\" was created",
                      reply_markup=get_dir_reply_keyboard())
+    draw_directory(message.chat.id, user)
+
+
+@bot.message_handler(regexp=UPLOAD_FILE_BTN_TEXT)
+def upload_file(message: telebot.types.Message):
+    msg = bot.send_message(message.chat.id,
+                           "Please, send your file with desired name in message text",
+                           reply_markup=ReplyKeyboardRemove())
+    bot.register_next_step_handler(msg, process_uploaded_file)
+
+
+def process_uploaded_file(message: telebot.types.Message):
+    created = create_file(message)
+    if created:
+        text = f"File \"{message.caption}\" was uploaded"
+    else:
+        text = f"File \"{message.caption}\" was NOT uploaded, " \
+               f"probably because of unsupported type"
+
+    bot.send_message(message.chat.id, text, reply_markup=get_dir_reply_keyboard())
+    user = get_user(message.from_user.id)
     draw_directory(message.chat.id, user)
 
 
@@ -111,7 +132,7 @@ def callback_query(call: CallbackQuery):
     if scope == DIRECTORY_VIEW_SCOPE:
         if option == NAVIGATION_OPTION:
             next_dir = Directories.objects.get(id=obj_id, user=user)
-            user.current_dir = next_dir
+            user._current_dir = next_dir
             user.save()
             bot.answer_callback_query(call.id)
             draw_directory(call.message.chat.id, user)
