@@ -24,6 +24,8 @@ FILE_OPEN_OPTION = 'file'
 ADD_OPTION = 'add'
 EDIT_OPTION = 'edit'
 DELETE_OPTION = 'delete'
+ATTACH_OPTION = 'attach'
+DETACH_OPTION = 'detach'
 
 DIRECTORY_EMOJI = '\N{open file folder}'
 AUDIO_EMOJI = '\N{musical note}'

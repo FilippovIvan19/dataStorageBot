@@ -57,3 +57,34 @@ def get_tag_inline_keyboard() -> InlineKeyboardMarkup:
                         InlineKeyboardButton(DELETE_EMOJI, callback_data=delete_data))
 
     return inline_keyboard
+
+
+def get_file_tag_inline_keyboard(file) -> InlineKeyboardMarkup:
+    inline_keyboard = InlineKeyboardMarkup()
+
+    add_data = '_'.join((FILE_VIEW_SCOPE, ADD_OPTION, str(file.id)))
+    delete_data = '_'.join((FILE_VIEW_SCOPE, DELETE_OPTION, str(file.id)))
+    inline_keyboard.row(InlineKeyboardButton(ADD_EMOJI, callback_data=add_data),
+                        InlineKeyboardButton(DELETE_EMOJI, callback_data=delete_data))
+
+    return inline_keyboard
+
+
+def get_file_add_tag_inline_keyboard(file, tags):
+    inline_keyboard = InlineKeyboardMarkup()
+
+    for tag in sorted(tags, reverse=True, key=lambda t: t.title):
+        data = '_'.join((FILE_VIEW_SCOPE, ATTACH_OPTION, str(file.id), str(tag.id)))
+        inline_keyboard.row(InlineKeyboardButton(tag.title, callback_data=data))
+
+    return inline_keyboard
+
+
+def get_file_delete_tag_inline_keyboard(file, tags):
+    inline_keyboard = InlineKeyboardMarkup()
+
+    for tag in sorted(tags, reverse=True, key=lambda t: t.title):
+        data = '_'.join((FILE_VIEW_SCOPE, DETACH_OPTION, str(file.id), str(tag.id)))
+        inline_keyboard.row(InlineKeyboardButton(tag.title, callback_data=data))
+
+    return inline_keyboard

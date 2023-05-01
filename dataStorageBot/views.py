@@ -8,13 +8,15 @@ import telebot
 from telebot.types import ReplyKeyboardRemove, CallbackQuery
 
 from dataStorage import settings
-from dataStorageBot.models import Directories, Files
+from dataStorageBot.models import Directories, Files, Tags
 from dataStorageBot.utils.constants import *
 from dataStorageBot.utils.data_helper import check_root_exists, get_user, \
     create_sub_directory, get_full_path, create_file, get_send_file_func, get_tags_info, \
-    create_tag
+    create_tag, get_file_tags_info
 from dataStorageBot.utils.message_helper import get_dir_reply_keyboard, \
-    get_dir_inline_keyboard, get_file_inline_keyboard, get_tag_inline_keyboard
+    get_dir_inline_keyboard, get_file_inline_keyboard, get_tag_inline_keyboard, \
+    get_file_tag_inline_keyboard, get_file_add_tag_inline_keyboard, \
+    get_file_delete_tag_inline_keyboard
 
 
 def hello(request):
@@ -132,7 +134,7 @@ def draw_directory(chat_id, user):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call: CallbackQuery):
     bot.answer_callback_query(call.id)
-    scope, option, obj_id = call.data.split('_')
+    scope, option, obj_id = call.data.split('_', maxsplit=2)
     user = get_user(call.from_user.id)
 
     if option == NAVIGATION_OPTION and scope in (DIRECTORY_VIEW_SCOPE, FILE_VIEW_SCOPE):
@@ -154,9 +156,39 @@ def callback_query(call: CallbackQuery):
             bot.register_next_step_handler(msg, process_new_tag_name)
         else:
             bot.send_message(call.message.chat.id, 'coming soon')
+        return
+
+    if scope == FILE_VIEW_SCOPE:
+        if option == ADD_OPTION:
+            file = Files.objects.get(id=obj_id, user=user)
+            file_tags = file.tags.all()
+            user_tags = Tags.objects.filter(user=file.user)
+            tags = user_tags.difference(file_tags)
+            bot.send_message(call.message.chat.id, "Please, choose tag to attach",
+                             reply_markup=get_file_add_tag_inline_keyboard(file, tags))
+        elif option == DELETE_OPTION:
+            file = Files.objects.get(id=obj_id, user=user)
+            tags = file.tags.all()
+            bot.send_message(call.message.chat.id, "Please, choose tag to detach",
+                             reply_markup=get_file_delete_tag_inline_keyboard(file, tags))
+        elif option == ATTACH_OPTION:
+            obj_id = obj_id.split('_')
+            file = Files.objects.get(id=obj_id[0], user=user)
+            tag = Tags.objects.get(id=obj_id[1], user=user)
+            file.tags.add(tag)
+            file.save()
+            draw_file(call.message.chat.id, file)
+        elif option == DETACH_OPTION:
+            obj_id = obj_id.split('_')
+            file = Files.objects.get(id=obj_id[0], user=user)
+            tag = Tags.objects.get(id=obj_id[1], user=user)
+            file.tags.remove(tag)
+            file.save()
+            draw_file(call.message.chat.id, file)
 
 
 def draw_file(chat_id, file):
+    draw_file_tags(chat_id, file)
     send_file_func = getattr(bot, get_send_file_func(file.content_type))
     send_file_func(chat_id, file.tg_file_id, caption=file.title,
                    reply_markup=get_file_inline_keyboard(file))
@@ -165,6 +197,11 @@ def draw_file(chat_id, file):
 def draw_tags(chat_id, user):
     tags_info = get_tags_info(user)
     bot.send_message(chat_id, tags_info, reply_markup=get_tag_inline_keyboard())
+
+
+def draw_file_tags(chat_id, file):
+    tags_info = get_file_tags_info(file)
+    bot.send_message(chat_id, tags_info, reply_markup=get_file_tag_inline_keyboard(file))
 
 
 def process_new_tag_name(message: telebot.types.Message):

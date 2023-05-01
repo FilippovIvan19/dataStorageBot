@@ -84,3 +84,11 @@ def get_tags_info(user):
         return '\n'.join([tag.get_title_with_emoji() for tag in tags])
     except Tags.DoesNotExist:
         return "You haven't created any tags yet"
+
+
+def get_file_tags_info(file):
+    tags = file.tags.all()
+    if len(tags) > 0:
+        return '\n'.join([tag.get_title_with_emoji() for tag in tags])
+    else:
+        return "No tags"
