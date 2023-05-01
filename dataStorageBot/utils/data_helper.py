@@ -49,8 +49,20 @@ def get_file_id(message: Message) -> str:
         return ''
 
 
+def get_send_file_func(content_type) -> str:
+    if content_type == FileTypes.AUDIO.value:
+        return 'send_audio'
+    elif content_type == FileTypes.DOCUMENT.value:
+        return 'send_document'
+    elif content_type == FileTypes.PHOTO.value:
+        return 'send_photo'
+    elif content_type == FileTypes.VIDEO.value:
+        return 'send_video'
+    else:
+        return ''
+
+
 def create_file(message: Message):
-    print('message', message)
     user = get_user(message.from_user.id)
     tg_file_id = get_file_id(message)
     if tg_file_id != '':

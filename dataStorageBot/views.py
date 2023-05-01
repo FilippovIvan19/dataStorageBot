@@ -8,12 +8,12 @@ import telebot
 from telebot.types import ReplyKeyboardRemove, CallbackQuery
 
 from dataStorage import settings
-from dataStorageBot.models import Directories
+from dataStorageBot.models import Directories, Files
 from dataStorageBot.utils.constants import *
 from dataStorageBot.utils.data_helper import check_root_exists, get_user, \
-    create_sub_directory, get_full_path, create_file
+    create_sub_directory, get_full_path, create_file, get_send_file_func
 from dataStorageBot.utils.message_helper import get_dir_reply_keyboard, \
-    get_dir_inline_keyboard
+    get_dir_inline_keyboard, get_file_inline_keyboard
 
 
 def hello(request):
@@ -129,10 +129,22 @@ def draw_directory(chat_id, user):
 def callback_query(call: CallbackQuery):
     scope, option, obj_id = call.data.split('_')
     user = get_user(call.from_user.id)
-    if scope == DIRECTORY_VIEW_SCOPE:
-        if option == NAVIGATION_OPTION:
-            next_dir = Directories.objects.get(id=obj_id, user=user)
-            user._current_dir = next_dir
-            user.save()
-            bot.answer_callback_query(call.id)
-            draw_directory(call.message.chat.id, user)
+
+    if option == NAVIGATION_OPTION and scope in (DIRECTORY_VIEW_SCOPE, FILE_VIEW_SCOPE):
+        next_dir = Directories.objects.get(id=obj_id, user=user)
+        user._current_dir = next_dir
+        user.save()
+        bot.answer_callback_query(call.id)
+        draw_directory(call.message.chat.id, user)
+        return
+
+    if scope == DIRECTORY_VIEW_SCOPE and option == FILE_OPEN_OPTION:
+        file = Files.objects.get(id=obj_id, user=user)
+        bot.answer_callback_query(call.id)
+        draw_file(call.message.chat.id, file)
+
+
+def draw_file(chat_id, file):
+    send_file_func = getattr(bot, get_send_file_func(file.content_type))
+    send_file_func(chat_id, file.tg_file_id, caption=file.title,
+                   reply_markup=get_file_inline_keyboard(file))

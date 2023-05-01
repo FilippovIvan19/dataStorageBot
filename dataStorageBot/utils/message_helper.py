@@ -32,3 +32,15 @@ def get_dir_inline_keyboard(cur_dir) -> InlineKeyboardMarkup:
         InlineKeyboardButton(DIRECTORY_EMOJI + '..', callback_data=parent_data))
 
     return inline_keyboard
+
+
+def get_file_inline_keyboard(file) -> InlineKeyboardMarkup:
+    parent_dir = file.directory
+
+    inline_keyboard = InlineKeyboardMarkup()
+
+    parent_data = '_'.join((FILE_VIEW_SCOPE, NAVIGATION_OPTION, str(parent_dir.id)))
+    inline_keyboard.row(
+        InlineKeyboardButton(DIRECTORY_EMOJI + '..', callback_data=parent_data))
+
+    return inline_keyboard
