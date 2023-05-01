@@ -1,6 +1,6 @@
 from telebot.types import Message
 
-from dataStorageBot.models import Users, Directories, Files
+from dataStorageBot.models import Users, Directories, Files, Tags
 from dataStorageBot.utils.constants import ROOT_DIR_NAME, FileTypes
 
 
@@ -24,6 +24,10 @@ def check_root_exists(user_id: int) -> bool:
 
 def create_sub_directory(user: Users, title: str) -> None:
     Directories.objects.create(title=title, user=user, parent=user.get_current_dir())
+
+
+def create_tag(user: Users, title: str) -> None:
+    Tags.objects.create(title=title, user=user)
 
 
 def get_full_path(directory: Directories):
@@ -72,3 +76,11 @@ def create_file(message: Message):
         return True
     else:
         return False
+
+
+def get_tags_info(user):
+    try:
+        tags = Tags.objects.filter(user=user)
+        return '\n'.join([tag.get_title_with_emoji() for tag in tags])
+    except Tags.DoesNotExist:
+        return "You haven't created any tags yet"

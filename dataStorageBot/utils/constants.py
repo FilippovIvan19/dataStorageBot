@@ -17,15 +17,23 @@ UPLOAD_FILE_BTN_TEXT = 'upload file'
 # inline keyboard
 DIRECTORY_VIEW_SCOPE = 'dir'
 FILE_VIEW_SCOPE = 'file'
+TAG_VIEW_SCOPE = 'tag'
 
 NAVIGATION_OPTION = 'nav'
 FILE_OPEN_OPTION = 'file'
+ADD_OPTION = 'add'
+EDIT_OPTION = 'edit'
+DELETE_OPTION = 'delete'
 
 DIRECTORY_EMOJI = '\N{open file folder}'
 AUDIO_EMOJI = '\N{musical note}'
 DOCUMENT_EMOJI = '\N{page facing up}'
 PHOTO_EMOJI = '\N{sunrise over mountains}'
 VIDEO_EMOJI = '\N{clapper board}'
+TAG_EMOJI = '\N{bookmark}'
+ADD_EMOJI = '\N{squared new}'
+EDIT_EMOJI = '\N{pencil}'
+DELETE_EMOJI = '\N{cross mark}'
 
 # hints
 MY_COMMANDS = [

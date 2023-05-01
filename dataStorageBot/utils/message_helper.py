@@ -44,3 +44,16 @@ def get_file_inline_keyboard(file) -> InlineKeyboardMarkup:
         InlineKeyboardButton(DIRECTORY_EMOJI + '..', callback_data=parent_data))
 
     return inline_keyboard
+
+
+def get_tag_inline_keyboard() -> InlineKeyboardMarkup:
+    inline_keyboard = InlineKeyboardMarkup()
+
+    add_data = '_'.join((TAG_VIEW_SCOPE, ADD_OPTION, '0'))
+    edit_data = '_'.join((TAG_VIEW_SCOPE, EDIT_OPTION, '0'))
+    delete_data = '_'.join((TAG_VIEW_SCOPE, DELETE_OPTION, '0'))
+    inline_keyboard.row(InlineKeyboardButton(ADD_EMOJI, callback_data=add_data),
+                        InlineKeyboardButton(EDIT_EMOJI, callback_data=edit_data),
+                        InlineKeyboardButton(DELETE_EMOJI, callback_data=delete_data))
+
+    return inline_keyboard

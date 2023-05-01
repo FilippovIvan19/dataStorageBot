@@ -17,8 +17,11 @@ class Directories(models.Model):
 
 
 class Tags(models.Model):
-    tag = models.TextField(primary_key=True)
+    title = models.TextField()
     user = models.ForeignKey('dataStorageBot.Users', models.CASCADE)
+
+    def get_title_with_emoji(self) -> str:
+        return TAG_EMOJI + self.title
 
     class Meta:
         db_table = 'tags'
