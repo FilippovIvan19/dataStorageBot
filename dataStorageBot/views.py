@@ -128,7 +128,8 @@ def process_uploaded_file(message: telebot.types.Message):
 def draw_directory(chat_id, user):
     cur_dir = user.get_current_dir()
     full_path = get_full_path(cur_dir)
-    bot.send_message(chat_id, full_path, reply_markup=get_dir_inline_keyboard(cur_dir))
+    bot.send_message(chat_id, full_path, parse_mode='Markdown',
+                     reply_markup=get_dir_inline_keyboard(cur_dir))
 
 
 @bot.callback_query_handler(func=lambda call: True)

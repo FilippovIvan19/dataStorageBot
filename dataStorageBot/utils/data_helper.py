@@ -36,7 +36,7 @@ def get_full_path(directory: Directories):
     while d.parent:
         d = d.parent
         full_path = d.title + '/' + full_path
-    return full_path
+    return '`' + full_path + '`'
 
 
 def get_file_id(message: Message) -> str:
@@ -79,10 +79,10 @@ def create_file(message: Message):
 
 
 def get_tags_info(user):
-    try:
-        tags = Tags.objects.filter(user=user)
+    tags = Tags.objects.filter(user=user)
+    if len(tags) > 0:
         return '\n'.join([tag.get_title_with_emoji() for tag in tags])
-    except Tags.DoesNotExist:
+    else:
         return "You haven't created any tags yet"
 
 
